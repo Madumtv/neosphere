@@ -28,6 +28,27 @@ try {
 } catch(Throwable $e) { /* ignore si table absente */ }
 // Inclure le menu commun
 include_once __DIR__ . '/../inc/menu.php';
+
+// --- Rendu initial serveur : calculer créneaux pour la date du jour ---
+$initialDate = date('Y-m-d');
+$initialSlots = [];
+// Si une prestation est sélectionnée, utiliser sa durée, sinon défaut 60
+$duration = $selectedService['duration_minutes'] ?? 60;
+// créneaux de 09:00 à 17:00 par pas égal à duration
+$startHour = 9; $endHour = 17;
+$period = max(15, (int)$duration); // minutes
+$dt = new DateTime($initialDate . ' ' . sprintf('%02d:00', $startHour));
+$endDt = new DateTime($initialDate . ' ' . sprintf('%02d:00', $endHour));
+while ($dt <= $endDt) {
+  $s = $dt->format('H:i');
+  // vérifier réservation existante
+  $start_datetime = $initialDate . ' ' . $s . ':00';
+  $st = $pdo->prepare('SELECT COUNT(*) FROM appointments WHERE service_id=? AND start_datetime = ?');
+  $st->execute([(int)$prestationId, $start_datetime]);
+  $booked = $st->fetchColumn() > 0;
+  $initialSlots[] = ['time'=>$s, 'booked'=>$booked, 'start_datetime'=>$start_datetime];
+  $dt->modify("+{$period} minutes");
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -117,7 +138,19 @@ include_once __DIR__ . '/../inc/menu.php';
     <div class="times">
       <h3>Créneaux disponibles</h3>
       <div id="slots">
-        <!-- Les boutons de créneaux seront générés ici -->
+        <?php if (empty($initialSlots)): ?>
+          <em>Aucun créneau disponible pour cette date.</em>
+        <?php else: ?>
+          <?php foreach ($initialSlots as $slot):
+            $display = htmlspecialchars($slot['time']);
+            $start_dt = htmlspecialchars($slot['start_datetime']);
+            $isBooked = !empty($slot['booked']);
+            $btnClass = $isBooked ? 'booked' : '';
+            $disabled = $isBooked ? 'disabled' : '';
+          ?>
+            <button type="button" class="<?= $btnClass ?>" <?= $disabled ?> onclick="document.getElementById('selected_slot').value='<?= $start_dt ?>'; Array.from(document.getElementById('slots').children).forEach(function(b){b.classList.remove('selected');}); this.classList.add('selected');"><?= $display ?><?= $isBooked ? ' (Réservé)' : '' ?></button>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     </div>
   </div>
