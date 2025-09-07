@@ -1,0 +1,7 @@
+Optimisations futures:
+- Modèle récurrent hebdomadaire (jours ouvrés, pause déjeuner)
+- Gestion fuseau horaire
+- Confirmation email via PHPMailer
+- Statuts avancés: no-show, completed
+- Validation chevauchements si réservation ad hoc
+- Interface admin pour visualiser calendrier complet

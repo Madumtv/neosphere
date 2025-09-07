@@ -1,0 +1,21 @@
+[
+    {
+        "nom": "3 nom",
+        "duree": "1h30",
+        "description": "description 3",
+        "prix_ttc": "53"
+    },
+    {
+        "nom": "2 nom",
+        "duree": "1h30",
+        "description": "decription 2",
+        "prix_ttc": "52"
+    },
+    {
+        "nom": "1 nom",
+        "duree": "1h30",
+        "description": "descrpiton 1",
+        "prix_ttc": "50",
+        "poids": 0
+    }
+]
