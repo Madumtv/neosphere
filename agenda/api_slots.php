@@ -19,5 +19,19 @@ $sql = "SELECT start_datetime, end_datetime, status FROM appointments WHERE serv
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$prestationId, $date]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-echo json_encode(['slots' => $rows]);
+
+// Convertir en format attendu par le front : ajouter un champ 'booked' qui vaut true sauf si status === 'cancelled'
+$slots = [];
+foreach ($rows as $r) {
+  $status = isset($r['status']) ? $r['status'] : null;
+  $booked = !($status === 'cancelled');
+  $slots[] = [
+    'start_datetime' => $r['start_datetime'] ?? null,
+    'end_datetime' => $r['end_datetime'] ?? null,
+    'status' => $status,
+    'booked' => $booked
+  ];
+}
+
+echo json_encode(['slots' => $slots]);
 exit;

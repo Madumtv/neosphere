@@ -31,9 +31,10 @@ $endDt->modify("+{$durationMinutes} minutes");
 $end = $endDt->format('Y-m-d H:i:s');
 
 try {
-    $stmt = $pdo->prepare("INSERT INTO appointments (user_id, service_id, slot_id, start_datetime, end_datetime, status, notes, created_at, updated_at) VALUES (?, ?, NULL, ?, ?, 'confirmed', ?, NOW(), NOW())");
+    $status = isset($_GET['status']) ? $_GET['status'] : 'confirmed';
+    $stmt = $pdo->prepare("INSERT INTO appointments (user_id, service_id, slot_id, start_datetime, end_datetime, status, notes, created_at, updated_at) VALUES (?, ?, NULL, ?, ?, ?, ?, NOW(), NOW())");
     $notes = 'Insertion test via insert_test_appointment.php';
-    $stmt->execute([$userId, $prestationId, $start, $end, $notes]);
+    $stmt->execute([$userId, $prestationId, $start, $end, $status, $notes]);
     $id = $pdo->lastInsertId();
     echo "OK: rendez-vous inséré id={$id} start={$start} end={$end} service_id={$prestationId}\n";
     echo "SQL row: ";

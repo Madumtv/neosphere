@@ -41,9 +41,9 @@ $dt = new DateTime($initialDate . ' ' . sprintf('%02d:00', $startHour));
 $endDt = new DateTime($initialDate . ' ' . sprintf('%02d:00', $endHour));
 while ($dt <= $endDt) {
   $s = $dt->format('H:i');
-  // vérifier réservation existante
+  // vérifier réservation existante (ne pas compter les status 'cancelled')
   $start_datetime = $initialDate . ' ' . $s . ':00';
-  $st = $pdo->prepare('SELECT COUNT(*) FROM appointments WHERE service_id=? AND start_datetime = ?');
+  $st = $pdo->prepare("SELECT COUNT(*) FROM appointments WHERE service_id=? AND start_datetime = ? AND (status IS NULL OR status != 'cancelled')");
   $st->execute([(int)$prestationId, $start_datetime]);
   $booked = $st->fetchColumn() > 0;
   $initialSlots[] = ['time'=>$s, 'booked'=>$booked, 'start_datetime'=>$start_datetime];
